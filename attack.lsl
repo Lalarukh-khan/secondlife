@@ -1,5 +1,6 @@
 integer listenChannel = 42; // Change to your desired channel
-key selectedPlayer;
+key selectedPlayer = NULL_KEY;
+float distanceThreshold = 20.0;
 
 default
 {
@@ -13,8 +14,9 @@ default
         if (num_detected > 0)
         {
             key touchedAvatar = llDetectedKey(0);
-            
-            if (llVecDist(llGetPos(), llGetPosAgent(touchedAvatar)) <= 20.0)
+            vector touchedPos = llDetectedPos(0);
+
+            if (llVecDist(llGetPos(), touchedPos) <= distanceThreshold)
             {
                 selectedPlayer = touchedAvatar;
                 llInstantMessage(selectedPlayer, "Press the attack button to proceed.");
@@ -24,17 +26,23 @@ default
 
     listen(integer channel, string name, key id, string message)
     {
-        if (channel == listenChannel && id == selectedPlayer && message == "attack")
+        if (channel == listenChannel && selectedPlayer != NULL_KEY && id == selectedPlayer && message == "attack")
         {
             key myKey = llGetOwner();
             string postData = "attacker=" + (string)myKey + "&defender=" + (string)selectedPlayer;
-            llHTTPRequest("https://cityofrumor.com/testing.php/attack.php", [HTTP_METHOD, "POST", HTTP_BODY, postData]);
+        string url = "https://cityofrumor.com/attack.php?attacker=" + (string)myKey + "&defender=" + (string)selectedPlayer;
+            llHTTPRequest(url, [HTTP_METHOD, "POST", HTTP_MIMETYPE, "application/x-www-form-urlencoded"], "");
+           // llHTTPRequest("https://cityofrumor.com/attack.php", [HTTP_METHOD, "POST", HTTP_MIMETYPE, "application/x-www-form-urlencoded", postData]);
 
             llInstantMessage(myKey, "Your healing will be paused for the next 2 hours.");
             llInstantMessage(selectedPlayer, "Your healing will be paused for the next 2 hours.");
         }
     }
 }
+
+
+
+
 
 
 
