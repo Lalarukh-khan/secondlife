@@ -1,3 +1,49 @@
+integer listenChannel = 42; // Change to your desired channel
+key selectedPlayer;
+
+default
+{
+    state_entry()
+    {
+        llListen(listenChannel, "", NULL_KEY, "");
+    }
+
+    touch_start(integer num_detected)
+    {
+        if (num_detected > 0)
+        {
+            key touchedAvatar = llDetectedKey(0);
+            
+            if (llVecDist(llGetPos(), llGetPosAgent(touchedAvatar)) <= 20.0)
+            {
+                selectedPlayer = touchedAvatar;
+                llInstantMessage(selectedPlayer, "Press the attack button to proceed.");
+            }
+        }
+    }
+
+    listen(integer channel, string name, key id, string message)
+    {
+        if (channel == listenChannel && id == selectedPlayer && message == "attack")
+        {
+            key myKey = llGetOwner();
+            string postData = "attacker=" + (string)myKey + "&defender=" + (string)selectedPlayer;
+            llHTTPRequest("https://cityofrumor.com/testing.php/attack.php", [HTTP_METHOD, "POST", HTTP_BODY, postData]);
+
+            llInstantMessage(myKey, "Your healing will be paused for the next 2 hours.");
+            llInstantMessage(selectedPlayer, "Your healing will be paused for the next 2 hours.");
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 integer buttonChannel = 123;
 integer healingPauseTime = 7200; // 2 hours in seconds
 

@@ -1,0 +1,59 @@
+Write LSL and php code according to the below steps:
+
+Step#1: (Storing players)
+1- Create an Isl script that can select from avatars around in a 20 meter radius. 
+2- Once a player is selected in second life the player should press attack.
+3- Attack button should send both players names to the PHP file, the php file will store both attacker and defender in database 
+4- alert the players that their healing will be paused for the next 2 hours. 
+
+Step#2: (Performing action)
+1- Each player should be checked if they have any health. 
+2- If their health is 0 the PHP should send a message back saying in general chat that the player has no health in HUD. 
+3- After checking health, Each player will be generated a random number 1-20 and their health regeneration will be paused for the next 2 hours. Player will be alerted to this and asked if they want to attack.
+4- If the number is less than five the player auto loses and move to STEP#3.
+5- Once both players have a random number the PHP code will add the attacking player ATTACK points to their randomly generated number.
+6- The PHP code will then compare the two numbers. The larger of the two numbers wins.
+7- STEP#3 should activate here for the looser. 
+8- The PHP code will send back to the attacking player’s HUD a message to display in main chat that says that the Attacking player avatar name either hits or misses.
+
+Step#3:
+1- On any player loss the losing player should have their profile checked to see if there are any stored re-rolls.
+2- If there are re-rolls send a message to that player offering them the option of using the reroll.
+3- If they select yes, they will repeat number generation and comparison to see if the second roll has provided a higher number.
+
+
+
+
+
+
+Step#1: (Storing players)
+
+LSL Script (battle_script):
+
+Detect avatars within a 20-meter radius using llSensor.
+Allow the selected player to press the attack button.
+On button press, send both players' names to the PHP script using llHTTPRequest.
+The PHP script should store the attacker and defender in a database.
+Send a message back to both players' HUDs to alert them about the healing pause.
+Step#2: (Performing action)
+
+LSL Script (battle_script):
+
+Check each player's health status using llGetObjectDetails.
+If any player's health is 0, send a message to general chat about their health status.
+Generate random numbers (1-20) for both players.
+Pause health regeneration for both players for 2 hours using timers or similar mechanisms.
+Send a message to both players, asking if they want to attack.
+If the attacker's random number is less than 5, auto-move to Step#3.
+If both players want to attack, add attacker's ATTACK points to their random number.
+Compare the two numbers and determine the winner.
+Display a message in main chat about the attack outcome.
+Step#3:
+
+LSL Script (battle_script):
+
+Determine the losing player based on the attack outcome.
+Check if the losing player has any stored re-rolls in their profile.
+If there are re-rolls, offer the player the option to use a re-roll.
+If the player selects yes, generate a new random number and compare it with the previous roll.
+Determine the new outcome and update the player's status accordingly.
