@@ -1,19 +1,4 @@
 integer i;
-float GetAvatarHealth(key avatarID)
-    {
-        string data = llGetObjectDesc();
-        list lines = llParseString2List(data, ["\n"], []);
-        
-        key storedAvatarID = llList2Key(lines, 0);
-        float health = llList2Float(lines, 1);
-        
-        if (storedAvatarID == avatarID)
-        {
-            return health;
-        }
-        return 0.0;
-    }
-    
 default
 {
     touch_start(integer total_number)
@@ -23,7 +8,7 @@ default
 
         if (!numOfAvatars)
         {
-            llOwnerSay("No player found within the region!");
+            llOwnerSay("No avatars found within the region!");
             return;
         }
 
@@ -51,25 +36,7 @@ default
                     defenderIDs += id;
                 }
             }
-            float avatarHealth = GetAvatarHealth(id); 
-            if (avatarHealth <= 0.0)
-            {
-        llInstantMessage(id,"Your healing will be paused for the next 2 hours.");
-                llInstantMessage(id, "Your health is at 0. You cannot attack.");
-            }
-             else{ 
-                llInstantMessage(id,"Your healing will be paused for the next 2 hours.");
-                integer attackValue =  llRound(llFrand(19)) + 1;
-        
-        llInstantMessage(attackerID, "You have been selected as the attacker. Your attack value is " + (string)attackValue + ". Your health regeneration will be paused for the next 2 hours. Do you want to attack?");
-        
-        integer numDefenders2 = llGetListLength(defenderIDs);
-        for (i = 0; i < numDefenders2; ++i)
-        {
-            key defenderID = llList2Key(defenderIDs, i);
-            llInstantMessage(defenderID, "You have been selected as a defender against the attack. Your health regeneration will be paused for the next 2 hours.");
-        }
-                }
+
             ++index;
         }
         string attackerName = llKey2Name(attackerID);
@@ -87,5 +54,6 @@ default
         }
         string url = "https://cityofrumor.com/attack.php?attacker=" + attackerName + "&defender=" + defenderNames;
         llHTTPRequest(url, [HTTP_METHOD, "POST", HTTP_MIMETYPE, "application/x-www-form-urlencoded"], "");
+        llOwnerSay("Your healing will be paused for the next 2 hours.");
     }
 }
