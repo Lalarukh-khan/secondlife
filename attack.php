@@ -128,7 +128,7 @@ if ($result->num_rows > 0) {
                                 }
                             }
                             if ($asecondIsLarger) {
-                                echo " Finally! '$attacker' won in the $atrial Re-Roll against the attacker. ";
+                                echo " Finally! '$attacker' won in the $atrial Re-Roll against the defender. ";
                                 $dfsecondIsLarger = false;
                                 for ($dftrial = 1; $dftrial <= $dtrial; $dftrial++) {
                                     if($dftrial == 1){
