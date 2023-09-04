@@ -19,7 +19,8 @@ if ($result->num_rows > 0) {
         if ($row['attacker_health'] > 0 && $row['defender_health'] > 0) {
             $attackerpoint = $row['attacker_points'] + 1;
             $randomNumber = mt_rand(1, 20);
-            $randomNumber1 = $randomNumber + $attackerpoint;
+            // $randomNumber1 = $randomNumber + $attackerpoint;
+            $randomNumber1 = 4;
             $randomNumber2 = mt_rand(1, 20);
             echo "The attacker number is: ".$randomNumber1;
             echo " The defender number is: ".$randomNumber2;
@@ -91,7 +92,7 @@ if ($result->num_rows > 0) {
                             }
                             $dnewrandomNumber = mt_rand(1, 20);
                             echo " Defender number in '$dtrial' reroll is: '$dnewrandomNumber'";
-                            $attackerrerollnumb = row['attacker_number'];
+                            $attackerrerollnumb = $row['attacker_number'];
                             echo " Attacker number in which attacker won: '$attackerrerollnumb'";
                             if ($dnewrandomNumber > $attackerrerollnumb) {
                                 $dsecondIsLarger = true;
@@ -115,7 +116,7 @@ if ($result->num_rows > 0) {
                                 }
                                 $anewrandomNumber = mt_rand(1, 20);
                                 echo " Attacker number in '$dtrial' reroll is: '$anewrandomNumber'";
-                                $adefenderrerollnumb = row['defender_number'];
+                                $adefenderrerollnumb = $row['defender_number'];
                                 echo " Defender number in which defender won: '$adefenderrerollnumb'";
                                 if ($anewrandomNumber > $adefenderrerollnumb) {
                                     $asecondIsLarger = true;
@@ -139,7 +140,7 @@ if ($result->num_rows > 0) {
                                     }
                                     $dfnewrandomNumber = mt_rand(1, 20);
                                     echo " Attacker number in '$dftrial' reroll is: '$dfnewrandomNumber'";
-                                    $dfdefenderrerollnumb = row['attacker_number'];
+                                    $dfdefenderrerollnumb = $row['attacker_number'];
                                     echo " Defender number in which defender won: '$dfdefenderrerollnumb'";
                                     if ($dfnewrandomNumber > $dfdefenderrerollnumb) {
                                         $dfsecondIsLarger = true;
