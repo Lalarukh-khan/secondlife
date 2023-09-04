@@ -889,7 +889,7 @@ if ($result->num_rows > 0) {
                 $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
                 $updatehealth = "UPDATE attacks SET defender_health = '$getdefenderhealth', defender_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                 $conn->query($updatehealth);
-                    echo " '$defender' either hits or misses!";
+                    echo " '$attacker' either hits or misses!";
                     // STEP 3 CALIING for defender
                     if($getdefenderhealth > 0 ){
                         $maxTrials = 3;
@@ -1018,7 +1018,7 @@ if ($result->num_rows > 0) {
                 $updatehealth = "UPDATE attacks SET attacker_health = '$getattackerhealth', attacker_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                 $conn->query($updatehealth);
                 echo " Attacker Lost the Attack due to low Attack!";
-                    echo " '$attacker' won by greater defence";
+                    echo " '$defender' won by greater defence";
                     // STEP 3 CALIING for attacker
                 if($getattackerhealth > 0 ){
                     $maxTrials = 3;
