@@ -31,62 +31,62 @@ if ($result->num_rows > 0) {
     // echo "Defender and Attacker already exist";
     while ($row = $result->fetch_assoc()) {
             $attackerpoint = $row['healer_points'] + 1;
-            $randomNumber = mt_rand(10, 20);
-            $randomNumber1 = $randomNumber + $attackerpoint;
+            $randomNumber = mt_rand(1, 20);
+            $randomNumber2 = "";
+            $randomNumber1 =  $randomNumber + $attackerpoint;
+            $currenttime = time();
+            $timestampAfter = strtotime('+1 second', $currenttime);
+        	$attackertime = $row['heal_last_updated'];
+            $timestampAfter3 = strtotime($attackertime);
+            $formattedTimestamp2 = date('Y-m-d H:i:s', $timestampAfter3);
+        	$formattedCurrentTime = date('Y-m-d H:i:s', $timestampAfter);
+            $ishealthpause = false;
+            $pausetime = "";
+            $pausetimetoshow = "";
+            if ($formattedCurrentTime > $formattedTimestamp2) {
+                $pausetime = '+30 minutes';
+                $pausetimetoshow = '30 minutes';
+                $randomNumber2 = 5;
+            }
+            else{
+                $ishealthpause = true;
+                $pausetime = '+90 minutes';
+                $pausetimetoshow = '90 minutes';
+                $randomNumber2 = 10;
+            }
             if($randomNumber1 > 20){
                 $randomNumber1 = 20;
             }
-            $randomNumber2 = mt_rand(10, 20);
             echo "The Healer number is: ".$randomNumber1 . ". ";
-            echo " The Player number is: ".$randomNumber2. ". ";
-            echo " Your health has been paused for 90 minutes.";
-        //     $currenttime = time();
-        //     $timestampAfter = strtotime('+1 second', $currenttime);
-        // 	$formattedCurrentTime = date('Y-m-d H:i:s', $timestampAfter);
-        // 	if($row['defender_last_updated'] !== null){
-        //         $defendertime = $row['defender_last_updated'];
-        //         $timestampAfter2 = strtotime($defendertime);
-        //     	$formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2);
-        //         if ($formattedCurrentTime > $formattedTimestamp) {
-        //             $updateQuery = "UPDATE attacks SET defender_health = 0 WHERE attacker = '$attacker' AND defender = '$defender'";
-        //             $conn->query($updateQuery);
-        //         }
-        // 	}
-        // 	if($row['attacker_last_updated'] !== null){
-        // 	    $attackertime = $row['attacker_last_updated'];
-        //         $timestampAfter3 = strtotime($attackertime);
-        //     	$formattedTimestamp2 = date('Y-m-d H:i:s', $timestampAfter3);
-        //         if ($formattedCurrentTime > $formattedTimestamp2) {
-        //             $updateQuery = "UPDATE attacks SET attacker_health = 0 WHERE attacker = '$attacker' AND defender = '$defender'";
-        //             $conn->query($updateQuery);
-        //         }
-        // 	}
-            $updateQuery = "UPDATE attacks SET attacker_number = '$randomNumber1', defender_number = '$randomNumber2', healer_points = '$attackerpoint' WHERE attacker = '$attacker' AND defender = '$defender'";
+            echo " Your health has been paused for $pausetimetoshow.";
+            $updateQuery = "UPDATE attacks SET healer_number = '$randomNumber1', defender_number = '$randomNumber2', healer_points = '$attackerpoint' WHERE attacker = '$attacker' AND defender = '$defender'";
             $conn->query($updateQuery);
                 if($randomNumber1 > $randomNumber2){
-                $getdefenderhealth  = $row['attacker_health'];
+                $getdefenderhealth  = $row['defender_health'];
                 $getdefenderhealth += 1;
-                // $timestampFromDatabase = time();
-                // $timestampAfter2Hours = strtotime('+90 minutes', $timestampFromDatabase); 
-                // $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
-                $updatehealth = "UPDATE attacks SET attacker_health = '$getdefenderhealth' WHERE attacker = '$attacker' AND defender = '$defender'";
+                $timestampFromDatabase = time();
+                $timestampAfter2Hours = strtotime($pausetime, $timestampFromDatabase); 
+                $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
+                $updatehealth = "UPDATE attacks SET defender_health = '$getdefenderhealth', heal_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                 $conn->query($updatehealth);
-                    echo "  '$attacker' either hits or misses!";
+                    echo "  '$attacker' has been won and healed! '$defender' got 1 point of health. ";
+                }
+                else{
                     // STEP 3 CALIING for defender
                     $maxTrials = 3;
                     $secondIsLarger = false;
                     for ($trial = 1; $trial <= $maxTrials; $trial++) {
                         if($trial == 1){
-                            echo " '$defender' has been offered for RE-ROLL. ";
+                            echo " '$attacker' has been offered for RE-ROLL. ";
                         }
                         else{
-                            echo " Again '$defender' has been offered for RE-ROLL. ";
+                            echo " Again '$attacker' has been offered for RE-ROLL. ";
                         }
                         $newrandomNumber = mt_rand(1, 20);
-                        echo " Generating healer for player in '$trial' reroll. ";
-                        if ($newrandomNumber > $randomNumber1) {
+                        echo " Generating healer for player in '$trial' reroll. the healer new number is: '$newrandomNumber' ";
+                        if ($newrandomNumber > $randomNumber2) {
                             $secondIsLarger = true;
-                            $updateattcknmb = "UPDATE attacks SET defender_number = '$newrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
+                            $updateattcknmb = "UPDATE attacks SET healer_number = '$newrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
                             $conn->query($updateattcknmb);
                             break; // Terminate the loop
                         }
@@ -95,221 +95,17 @@ if ($result->num_rows > 0) {
                         }
                     }
                     if ($secondIsLarger) {
-                        echo " Finally! '$defender' won in the $trial Re-Roll against the healer. ";
-                        $dmaxTrials = 3;
-                        $dsecondIsLarger = false;
-                        for ($dtrial = 1; $dtrial <= $dmaxTrials; $dtrial++) {
-                            if($dtrial == 1){
-                                echo " '$attacker' has been offered for RE-ROLL now. ";
-                            }
-                            else{
-                                echo "Again '$attacker' has been offered for RE-ROLL. ";
-                            }
-                            $dnewrandomNumber = mt_rand(1, 20);
-                            echo " Generating heal for healer in '$dtrial' reroll. ";
-                            $attackerrerollnumb = $row['defender_number'];
-                            // echo " Attacker number in which attacker won: '$attackerrerollnumb'";
-                            if ($dnewrandomNumber > $attackerrerollnumb) {
-                                $dsecondIsLarger = true;
-                                $dupdateattcknmb = "UPDATE attacks SET attacker_number = '$dnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                $conn->query($dupdateattcknmb);
-                                break; // Terminate the loop
-                            }
-                            else{
-                                echo " Healer again lost the by low heal in '$trial' reroll! ";
-                            }
-                        }
-                        if ($dsecondIsLarger) {
-                            echo " Finally! '$attacker' won in the $dtrial Re-Roll against the player. ";
-                            $asecondIsLarger = false;
-                            for ($atrial = 1; $atrial <= $trial; $atrial++) {
-                                if($atrial == 1){
-                                    echo " '$defender' has been offered for RE-ROLL now. ";
-                                }
-                                else{
-                                    echo "Again '$defender' has been offered for RE-ROLL. ";
-                                }
-                                $anewrandomNumber = mt_rand(1, 20);
-                                echo " Generating healer for player in '$atrial' reroll. ";
-                                $adefenderrerollnumb = $row['attacker_number'];
-                                // echo " Defender number in which defender won: '$adefenderrerollnumb'";
-                                if ($anewrandomNumber > $adefenderrerollnumb) {
-                                    $asecondIsLarger = true;
-                                    $aupdateattcknmb = "UPDATE attacks SET defender_number = '$anewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                    $conn->query($aupdateattcknmb);
-                                    break; // Terminate the loop
-                                }
-                                else{
-                                    echo " Player again lost the by low heal in '$trial' reroll! ";
-                                }
-                            }
-                            if ($asecondIsLarger) {
-                                echo " Finally! '$defender' won in the $atrial Re-Roll against the healer. ";
-                                $dfsecondIsLarger = false;
-                                for ($dftrial = 1; $dftrial <= $dtrial; $dftrial++) {
-                                    if($dftrial == 1){
-                                        echo " '$attacker' has been offered for RE-ROLL now. ";
-                                    }
-                                    else{
-                                        echo "Again '$attacker' has been offered for RE-ROLL. ";
-                                    }
-                                    $dfnewrandomNumber = mt_rand(1, 20);
-                                    echo " Generating heal for healer in '$dftrial' reroll. ";
-                                    $dfdefenderrerollnumb = $row['defender_number'];
-                                    // echo " Defender number in which defender won: '$dfdefenderrerollnumb'";
-                                    if ($dfnewrandomNumber > $dfdefenderrerollnumb) {
-                                        $dfsecondIsLarger = true;
-                                        $dfupdateattcknmb = "UPDATE attacks SET attacker_number = '$dfnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                        $conn->query($dfupdateattcknmb);
-                                        break; // Terminate the loop
-                                    }
-                                    else{
-                                        echo " Healer again lost the by low heal in '$dftrial' reroll! ";
-                                    }
-                                }
-                                if ($asecondIsLarger) {
-                                echo " Finally! '$attacker' won in the $dftrial Re-Roll against the healer. ";
-                                }
-                                else{
-                                    echo " '$attacker' has no more RE-ROLLS left to heal back. ";
-                                }
-                                
-                            }
-                            else{
-                                echo " '$attacker' has no more RE-ROLLS left to heal back. ";
-                            }
-                        }
-                        else{
-                            echo " In all Re-Rolls the '$attacker' couldn't against player. Now '$defender' is the final WINNER! ";
-                        }
+                        echo " Finally! '$attacker' has been succcessfully won in the $trial Re-Roll. '$defender' got 1 point of health. ";
+                        $timestampFromDatabase = time();
+                        $timestampAfter2Hours = strtotime($pausetime, $timestampFromDatabase); 
+                        $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
+                        $updatehealth = "UPDATE attacks SET heal_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                     } else {
-                        echo " In all Re-Rolls the '$defender' couldn't win the heal. Now '$attacker' is the final WINNER! ";
-                    }
-                
-                }
-                else{
-                $getattackerhealth  = $row['defender_health'];
-                $getattackerhealth += 1;
-                // $timestampFromDatabase = time();
-                // $timestampAfter2Hours = strtotime('+90 minutes', $timestampFromDatabase); 
-                // $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
-                $updatehealth = "UPDATE attacks SET defender_health = '$getattackerhealth' WHERE attacker = '$attacker' AND defender = '$defender'";
-                $conn->query($updatehealth);
-                echo "  Healer Lost the heal due to low Healer! ";
-                    echo "  '$defender' won by greater heal. ";
-                // STEP 3 CALIING for attacker
-                
-                    $maxTrials = 3;
-                    $secondIsLarger = false;
-                    for ($trial = 1; $trial <= $maxTrials; $trial++) {
-                        if($trial == 1){
-                            echo " '$attacker' has been offered for RE-ROLL. ";
-                        }
-                        else{
-                            echo "Again '$attacker' has been offered for RE-ROLL. ";
-                        }
-                        $newrandomNumber = mt_rand(1, 20);
-                        echo " Generating heal for healer in '$trial' reroll. "; 
-                        if ($newrandomNumber > $randomNumber2) {
-                            $secondIsLarger = true;
-                            $updateattcknmb = "UPDATE attacks SET attacker_number = '$newrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                            $conn->query($updateattcknmb);
-                            break; // Terminate the loop
-                        }
-                        else{
-                            echo " Healer again lost the by low heal in '$trial' reroll! ";
-                        }
-                    }
-                    if ($secondIsLarger) {
-                        echo " Finally! '$attacker' won in the $trial Re-Roll against the player. ";
-                        $dmaxTrials = 3;
-                        $dsecondIsLarger = false;
-                        for ($dtrial = 1; $dtrial <= $dmaxTrials; $dtrial++) {
-                            if($dtrial == 1){
-                                echo " '$defender' has been offered for RE-ROLL now. ";
-                            }
-                            else{
-                                echo "Again '$defender' has been offered for RE-ROLL. ";
-                            }
-                            $dnewrandomNumber = mt_rand(1, 20);
-                            echo " Generating healer for player in '$dtrial' reroll. ";
-                            $attackerrerollnumb = $row['attacker_number'];
-                            // echo " Attacker number in which attacker won: '$attackerrerollnumb'";
-                            if ($dnewrandomNumber > $attackerrerollnumb) {
-                                $dsecondIsLarger = true;
-                                $dupdateattcknmb = "UPDATE attacks SET defender_number = '$dnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                $conn->query($dupdateattcknmb);
-                                break; // Terminate the loop
-                            }
-                            else{
-                                echo " Player again lost the by low heal in '$trial' reroll! ";
-                            }
-                        }
-                        if ($dsecondIsLarger) {
-                            echo " Finally! '$defender' won in the $dtrial Re-Roll against the healer. ";
-                            $asecondIsLarger = false;
-                            for ($atrial = 1; $atrial <= $trial; $atrial++) {
-                                if($atrial == 1){
-                                    echo " '$attacker' has been offered for RE-ROLL now. ";
-                                }
-                                else{
-                                    echo "Again '$attacker' has been offered for RE-ROLL. ";
-                                }
-                                $anewrandomNumber = mt_rand(1, 20);
-                                echo " Generating heal for healer in '$atrial' reroll. ";
-                                $adefenderrerollnumb = $row['defender_number'];
-                                // echo " Defender number in which defender won: '$adefenderrerollnumb'";
-                                if ($anewrandomNumber > $adefenderrerollnumb) {
-                                    $asecondIsLarger = true;
-                                    $aupdateattcknmb = "UPDATE attacks SET attacker_number = '$anewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                    $conn->query($aupdateattcknmb);
-                                    break; // Terminate the loop
-                                }
-                                else{
-                                    echo " Healer again lost the by low heal in '$trial' reroll! ";
-                                }
-                            }
-                            if ($asecondIsLarger) {
-                                echo " Finally! '$attacker' won in the $atrial Re-Roll against the player. ";
-                                $dfsecondIsLarger = false;
-                                for ($dftrial = 1; $dftrial <= $dtrial; $dftrial++) {
-                                    if($dftrial == 1){
-                                        echo " '$defender' has been offered for RE-ROLL now. ";
-                                    }
-                                    else{
-                                        echo "Again '$defender' has been offered for RE-ROLL. ";
-                                    }
-                                    $dfnewrandomNumber = mt_rand(1, 20);
-                                    echo " Generating healer for player in '$dftrial' reroll. ";
-                                    $dfdefenderrerollnumb = $row['attacker_number'];
-                                    // echo " Defender number in which defender won: '$dfdefenderrerollnumb'";
-                                    if ($dfnewrandomNumber > $dfdefenderrerollnumb) {
-                                        $dfsecondIsLarger = true;
-                                        $dfupdateattcknmb = "UPDATE attacks SET defender_number = '$dfnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                        $conn->query($dfupdateattcknmb);
-                                        break; // Terminate the loop
-                                    }
-                                    else{
-                                        echo " Player again lost the by low heal in '$dftrial' reroll! ";
-                                    }
-                                }
-                                if ($asecondIsLarger) {
-                                echo " Finally! '$defender' won in the $dftrial Re-Roll against the healer. ";
-                                }
-                                else{
-                                    echo " '$defender' has no more RE-ROLLS left to heal back. ";
-                                }
-                                
-                            }
-                            else{
-                                echo " '$attacker' has no more RE-ROLLS left to heal back. ";
-                            }
-                        }
-                        else{
-                            echo " In all Re-Rolls the '$defender' couldn't against player. Now '$attacker' is the final WINNER! ";
-                        }
-                    } else {
-                        echo " In all Re-Rolls the '$attacker' couldn't win the heal. Now '$defender' is the final WINNER! ";
+                        echo " In all Re-Rolls the '$attacker' couldn't win the heal.";
+                        $timestampFromDatabase = time();
+                        $timestampAfter2Hours = strtotime($pausetime, $timestampFromDatabase); 
+                        $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
+                        $updatehealth = "UPDATE attacks SET heal_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                     }
                 
                 }
@@ -317,7 +113,7 @@ if ($result->num_rows > 0) {
         }
 } else {
     // Row doesn't exist, insert a new row
-    $insertQuery = "INSERT INTO attacks (attacker, defender, attacker_health, defender_health) VALUES ('$attacker', '$defender', 0, 0)";
+    $insertQuery = "INSERT INTO attacks (attacker, defender) VALUES ('$attacker', '$defender')";
     
     if ($conn->query($insertQuery) === TRUE) {
         $newRowId = $conn->insert_id;
@@ -326,64 +122,48 @@ if ($result->num_rows > 0) {
     $selectQuery = "SELECT * FROM attacks WHERE id = $newRowId";
     $result = $conn->query($selectQuery);
     if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
+       while ($row = $result->fetch_assoc()) {
             $attackerpoint = $row['healer_points'] + 1;
-            $randomNumber = mt_rand(10, 20);
-            $randomNumber1 = $randomNumber + $attackerpoint;
+            $randomNumber = mt_rand(1, 20);
+            $randomNumber1 =  $randomNumber + $attackerpoint;
+            $ishealthpause = true;
+            $pausetimetoshow = "";
+                $pausetime = '+30 minutes';
+                $pausetimetoshow = '30 minutes';
+                $randomNumber2 = 5;
             if($randomNumber1 > 20){
                 $randomNumber1 = 20;
             }
-            $randomNumber2 = mt_rand(10, 20);
-            echo "The Healer number is: ".$randomNumber1.". ";
-            echo " The Player number is: ".$randomNumber2.". ";
-            echo " Your health has been paused for 90 minutes.";
-        //     $currenttime = time();
-        //     $timestampAfter = strtotime('+1 second', $currenttime);
-        // 	$formattedCurrentTime = date('Y-m-d H:i:s', $timestampAfter);
-        // 	if($row['defender_last_updated'] !== null){
-        //         $defendertime = $row['defender_last_updated'];
-        //         $timestampAfter2 = strtotime($defendertime);
-        //     	$formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2);
-        //         if ($formattedCurrentTime > $formattedTimestamp) {
-        //             $updateQuery = "UPDATE attacks SET defender_health = 0 WHERE attacker = '$attacker' AND defender = '$defender'";
-        //             $conn->query($updateQuery);
-        //         }
-        // 	}
-        // 	if($row['attacker_last_updated'] !== null){
-        // 	    $attackertime = $row['attacker_last_updated'];
-        //         $timestampAfter3 = strtotime($attackertime);
-        //     	$formattedTimestamp2 = date('Y-m-d H:i:s', $timestampAfter3);
-        //         if ($formattedCurrentTime > $formattedTimestamp2) {
-        //             $updateQuery = "UPDATE attacks SET attacker_health = 0 WHERE attacker = '$attacker' AND defender = '$defender'";
-        //             $conn->query($updateQuery);
-        //         }
-        // 	}
-            $updateQuery = "UPDATE attacks SET attacker_number = '$randomNumber1', defender_number = '$randomNumber2', healer_points = '$attackerpoint' WHERE attacker = '$attacker' AND defender = '$defender'";
+            echo "The Healer number is: ".$randomNumber1 . ". ";
+            echo " Your health has been paused for $pausetimetoshow.";
+            $updateQuery = "UPDATE attacks SET healer_number = '$randomNumber1', defender_number = '$randomNumber2', healer_points = '$attackerpoint' WHERE attacker = '$attacker' AND defender = '$defender'";
             $conn->query($updateQuery);
                 if($randomNumber1 > $randomNumber2){
-                $getdefenderhealth  = $row['attacker_health'];
+                $getdefenderhealth  = $row['defender_health'];
                 $getdefenderhealth += 1;
                 $timestampFromDatabase = time();
-                $timestampAfter2Hours = strtotime('+90 minutes', $timestampFromDatabase); 
+                $timestampAfter2Hours = strtotime($pausetime, $timestampFromDatabase); 
                 $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
-                $updatehealth = "UPDATE attacks SET attacker_health = '$getdefenderhealth' WHERE attacker = '$attacker' AND defender = '$defender'";
+                $updatehealth = "UPDATE attacks SET defender_health = '$getdefenderhealth', heal_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                 $conn->query($updatehealth);
-                    echo "  '$attacker' either hits or misses! ";
+                    echo "  '$attacker' has been won and healed! '$defender' got 1 point of health. ";
+                }
+                else{
                     // STEP 3 CALIING for defender
                     $maxTrials = 3;
                     $secondIsLarger = false;
                     for ($trial = 1; $trial <= $maxTrials; $trial++) {
                         if($trial == 1){
-                            echo " '$defender' has been offered for RE-ROLL. ";
+                            echo " '$attacker' has been offered for RE-ROLL. ";
                         }
                         else{
-                            echo " Again '$defender' has been offered for RE-ROLL. ";
+                            echo " Again '$attacker' has been offered for RE-ROLL. ";
                         }
                         $newrandomNumber = mt_rand(1, 20);
-                        echo " Generating healer for player in '$trial' reroll. ";
-                        if ($newrandomNumber > $randomNumber1) {
+                        echo " Generating healer for player in '$trial' reroll. the healer new number is: '$newrandomNumber' ";
+                        if ($newrandomNumber > $randomNumber2) {
                             $secondIsLarger = true;
-                            $updateattcknmb = "UPDATE attacks SET defender_number = '$newrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
+                            $updateattcknmb = "UPDATE attacks SET healer_number = '$newrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
                             $conn->query($updateattcknmb);
                             break; // Terminate the loop
                         }
@@ -392,221 +172,17 @@ if ($result->num_rows > 0) {
                         }
                     }
                     if ($secondIsLarger) {
-                        echo " Finally! '$defender' won in the $trial Re-Roll against the healer. ";
-                        $dmaxTrials = 3;
-                        $dsecondIsLarger = false;
-                        for ($dtrial = 1; $dtrial <= $dmaxTrials; $dtrial++) {
-                            if($dtrial == 1){
-                                echo " '$attacker' has been offered for RE-ROLL now. ";
-                            }
-                            else{
-                                echo "Again '$attacker' has been offered for RE-ROLL. ";
-                            }
-                            $dnewrandomNumber = mt_rand(1, 20);
-                            echo " Generating heal for healer in '$dtrial' reroll. ";
-                            $attackerrerollnumb = $row['defender_number'];
-                            // echo " Attacker number in which attacker won: '$attackerrerollnumb'";
-                            if ($dnewrandomNumber > $attackerrerollnumb) {
-                                $dsecondIsLarger = true;
-                                $dupdateattcknmb = "UPDATE attacks SET attacker_number = '$dnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                $conn->query($dupdateattcknmb);
-                                break; // Terminate the loop
-                            }
-                            else{
-                                echo " Healer again lost the by low heal in '$trial' reroll! ";
-                            }
-                        }
-                        if ($dsecondIsLarger) {
-                            echo " Finally! '$attacker' won in the $dtrial Re-Roll against the player. ";
-                            $asecondIsLarger = false;
-                            for ($atrial = 1; $atrial <= $trial; $atrial++) {
-                                if($atrial == 1){
-                                    echo " '$defender' has been offered for RE-ROLL now. ";
-                                }
-                                else{
-                                    echo "Again '$defender' has been offered for RE-ROLL. ";
-                                }
-                                $anewrandomNumber = mt_rand(1, 20);
-                                echo " Generating healer for player in '$atrial' reroll. ";
-                                $adefenderrerollnumb = $row['attacker_number'];
-                                // echo " Defender number in which defender won: '$adefenderrerollnumb'";
-                                if ($anewrandomNumber > $adefenderrerollnumb) {
-                                    $asecondIsLarger = true;
-                                    $aupdateattcknmb = "UPDATE attacks SET defender_number = '$anewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                    $conn->query($aupdateattcknmb);
-                                    break; // Terminate the loop
-                                }
-                                else{
-                                    echo " Player again lost the by low heal in '$trial' reroll! ";
-                                }
-                            }
-                            if ($asecondIsLarger) {
-                                echo " Finally! '$defender' won in the $atrial Re-Roll against the healer. ";
-                                $dfsecondIsLarger = false;
-                                for ($dftrial = 1; $dftrial <= $dtrial; $dftrial++) {
-                                    if($dftrial == 1){
-                                        echo " '$attacker' has been offered for RE-ROLL now. ";
-                                    }
-                                    else{
-                                        echo "Again '$attacker' has been offered for RE-ROLL. ";
-                                    }
-                                    $dfnewrandomNumber = mt_rand(1, 20);
-                                    echo " Generating heal for healer in '$dftrial' reroll. ";
-                                    $dfdefenderrerollnumb = $row['defender_number'];
-                                    // echo " Defender number in which defender won: '$dfdefenderrerollnumb'";
-                                    if ($dfnewrandomNumber > $dfdefenderrerollnumb) {
-                                        $dfsecondIsLarger = true;
-                                        $dfupdateattcknmb = "UPDATE attacks SET attacker_number = '$dfnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                        $conn->query($dfupdateattcknmb);
-                                        break; // Terminate the loop
-                                    }
-                                    else{
-                                        echo " Healer again lost the by low heal in '$dftrial' reroll! ";
-                                    }
-                                }
-                                if ($asecondIsLarger) {
-                                echo " Finally! '$attacker' won in the $dftrial Re-Roll against the healer. ";
-                                }
-                                else{
-                                    echo " '$attacker' has no more RE-ROLLS left to heal back. ";
-                                }
-                                
-                            }
-                            else{
-                                echo " '$attacker' has no more RE-ROLLS left to heal back. ";
-                            }
-                        }
-                        else{
-                            echo " In all Re-Rolls the '$attacker' couldn't against player. Now '$defender' is the final WINNER! ";
-                        }
+                        echo " Finally! '$attacker' has been succcessfully won in the $trial Re-Roll. '$defender' got 1 point of health. ";
+                        $timestampFromDatabase = time();
+                        $timestampAfter2Hours = strtotime($pausetime, $timestampFromDatabase); 
+                        $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
+                        $updatehealth = "UPDATE attacks SET heal_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                     } else {
-                        echo " In all Re-Rolls the '$defender' couldn't win the heal. Now '$attacker' is the final WINNER! ";
-                    }
-                
-                }
-                else{
-                $getattackerhealth  = $row['defender_health'];
-                $getattackerhealth += 1;
-                // $timestampFromDatabase = time();
-                // $timestampAfter2Hours = strtotime('+90 minutes', $timestampFromDatabase); 
-                // $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
-                $updatehealth = "UPDATE attacks SET defender_health = '$getattackerhealth' WHERE attacker = '$attacker' AND defender = '$defender'";
-                $conn->query($updatehealth);
-                echo "  Healer Lost the heal due to low Healer!";
-                    echo "  '$defender' won by greater heal. ";
-                // STEP 3 CALIING for attacker
-                
-                    $maxTrials = 3;
-                    $secondIsLarger = false;
-                    for ($trial = 1; $trial <= $maxTrials; $trial++) {
-                        if($trial == 1){
-                            echo " '$attacker' has been offered for RE-ROLL. ";
-                        }
-                        else{
-                            echo "Again '$attacker' has been offered for RE-ROLL. ";
-                        }
-                        $newrandomNumber = mt_rand(1, 20);
-                        echo " Generating heal for healer in '$trial' reroll. "; 
-                        if ($newrandomNumber > $randomNumber2) {
-                            $secondIsLarger = true;
-                            $updateattcknmb = "UPDATE attacks SET attacker_number = '$newrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                            $conn->query($updateattcknmb);
-                            break; // Terminate the loop
-                        }
-                        else{
-                            echo " Healer again lost the by low heal in '$trial' reroll! ";
-                        }
-                    }
-                    if ($secondIsLarger) {
-                        echo " Finally! '$attacker' won in the $trial Re-Roll against the player. ";
-                        $dmaxTrials = 3;
-                        $dsecondIsLarger = false;
-                        for ($dtrial = 1; $dtrial <= $dmaxTrials; $dtrial++) {
-                            if($dtrial == 1){
-                                echo " '$defender' has been offered for RE-ROLL now. ";
-                            }
-                            else{
-                                echo "Again '$defender' has been offered for RE-ROLL. ";
-                            }
-                            $dnewrandomNumber = mt_rand(1, 20);
-                            echo " Generating healer for player in '$dtrial' reroll. ";
-                            $attackerrerollnumb = $row['attacker_number'];
-                            // echo " Attacker number in which attacker won: '$attackerrerollnumb'";
-                            if ($dnewrandomNumber > $attackerrerollnumb) {
-                                $dsecondIsLarger = true;
-                                $dupdateattcknmb = "UPDATE attacks SET defender_number = '$dnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                $conn->query($dupdateattcknmb);
-                                break; // Terminate the loop
-                            }
-                            else{
-                                echo " Player again lost the by low heal in '$trial' reroll! ";
-                            }
-                        }
-                        if ($dsecondIsLarger) {
-                            echo " Finally! '$defender' won in the $dtrial Re-Roll against the healer. ";
-                            $asecondIsLarger = false;
-                            for ($atrial = 1; $atrial <= $trial; $atrial++) {
-                                if($atrial == 1){
-                                    echo " '$attacker' has been offered for RE-ROLL now. ";
-                                }
-                                else{
-                                    echo "Again '$attacker' has been offered for RE-ROLL. ";
-                                }
-                                $anewrandomNumber = mt_rand(1, 20);
-                                echo " Generating heal for healer in '$atrial' reroll. ";
-                                $adefenderrerollnumb = $row['defender_number'];
-                                // echo " Defender number in which defender won: '$adefenderrerollnumb'";
-                                if ($anewrandomNumber > $adefenderrerollnumb) {
-                                    $asecondIsLarger = true;
-                                    $aupdateattcknmb = "UPDATE attacks SET attacker_number = '$anewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                    $conn->query($aupdateattcknmb);
-                                    break; // Terminate the loop
-                                }
-                                else{
-                                    echo " Healer again lost the by low heal in '$trial' reroll! ";
-                                }
-                            }
-                            if ($asecondIsLarger) {
-                                echo " Finally! '$attacker' won in the $atrial Re-Roll against the player. ";
-                                $dfsecondIsLarger = false;
-                                for ($dftrial = 1; $dftrial <= $dtrial; $dftrial++) {
-                                    if($dftrial == 1){
-                                        echo " '$defender' has been offered for RE-ROLL now. ";
-                                    }
-                                    else{
-                                        echo "Again '$defender' has been offered for RE-ROLL. ";
-                                    }
-                                    $dfnewrandomNumber = mt_rand(1, 20);
-                                    echo " Generating healer for player in '$dftrial' reroll. ";
-                                    $dfdefenderrerollnumb = $row['attacker_number'];
-                                    // echo " Defender number in which defender won: '$dfdefenderrerollnumb'";
-                                    if ($dfnewrandomNumber > $dfdefenderrerollnumb) {
-                                        $dfsecondIsLarger = true;
-                                        $dfupdateattcknmb = "UPDATE attacks SET defender_number = '$dfnewrandomNumber'  WHERE attacker = '$attacker' AND defender = '$defender'";
-                                        $conn->query($dfupdateattcknmb);
-                                        break; // Terminate the loop
-                                    }
-                                    else{
-                                        echo " Player again lost the by low heal in '$dftrial' reroll! ";
-                                    }
-                                }
-                                if ($asecondIsLarger) {
-                                echo " Finally! '$defender' won in the $dftrial Re-Roll against the healer. ";
-                                }
-                                else{
-                                    echo " '$defender' has no more RE-ROLLS left to heal back. ";
-                                }
-                                
-                            }
-                            else{
-                                echo " '$attacker' has no more RE-ROLLS left to heal back. ";
-                            }
-                        }
-                        else{
-                            echo " In all Re-Rolls the '$defender' couldn't against player. Now '$attacker' is the final WINNER! ";
-                        }
-                    } else {
-                        echo " In all Re-Rolls the '$attacker' couldn't win the heal. Now '$defender' is the final WINNER! ";
+                        echo " In all Re-Rolls the '$attacker' couldn't win the heal.";
+                        $timestampFromDatabase = time();
+                        $timestampAfter2Hours = strtotime($pausetime, $timestampFromDatabase); 
+                        $formattedTimestamp = date('Y-m-d H:i:s', $timestampAfter2Hours);
+                        $updatehealth = "UPDATE attacks SET heal_last_updated = '$formattedTimestamp' WHERE attacker = '$attacker' AND defender = '$defender'";
                     }
                 
                 }
