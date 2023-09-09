@@ -56,4 +56,9 @@ default
         llHTTPRequest(url, [HTTP_METHOD, "POST", HTTP_MIMETYPE, "application/x-www-form-urlencoded"], "");
         llOwnerSay("Your healing will be paused for the next 2 hours.");
     }
+     http_response(key request_id, integer status, list metadata, string body)
+    {
+        llOwnerSay("HTTP Status: " + (string)status);
+        llOwnerSay("HTTP Response: " + body);
+    }
 }
