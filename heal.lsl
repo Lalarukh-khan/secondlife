@@ -14,7 +14,7 @@ default
         
         llOwnerSay("Player name: " + avatar_name);
         
-        string url = "https://cityofrumor.com/testing.php?player=" + llEscapeURL(avatar_name);
+        string url = "https://cityofrumor.com/health.php?player=" + llEscapeURL(avatar_name);
         llHTTPRequest(url, [HTTP_METHOD, "POST", HTTP_MIMETYPE, "application/x-www-form-urlencoded"], "");
     }
     
