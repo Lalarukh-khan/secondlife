@@ -35,7 +35,7 @@ class Character {
         $randomNumber = rand(1, 100);
 
         return $randomNumber <= $detectionProbability;
-    }
+    } 
 
     public function evade() {
         // Calculate evasion probability based on stealth level
