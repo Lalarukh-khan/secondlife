@@ -1190,3 +1190,15 @@ else{
     echo "Fail begin here!!!";
 }
 ?>
+
+
+
+<?php
+// echo "hello world";
+// echo "hello-world";
+// for ($i = 1; $i <= 10000000; $i++) {
+//     echo "<div style='display: none;'> Iteration $i!!! </div>";
+// }
+// echo "The function has completed after at least 1 minute of processing.";
+
+?>
